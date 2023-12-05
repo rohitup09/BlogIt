@@ -1,0 +1,182 @@
+/* Reset some default styles */
+body, h1, h2, h3, p, ul {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    margin-bottom: 10px;
+    
+}
+
+ul {
+    list-style: none;
+}
+
+/* Page layout styles */
+body {
+    
+    margin: 0 auto;
+    
+}
+
+/* Header styles */
+h1 {
+    color: #000000;
+}
+
+/* Navigation styles */
+ul.nav {
+    margin-bottom: 20px;
+}
+
+ul.nav li {
+    display: inline;
+    margin-right: 10px;
+}
+
+/* Post styles */
+ul.posts {
+    padding: 0;
+}
+
+ul.posts li {
+    border-bottom: 1px solid #ddd;
+    padding: 20px 0;
+}
+
+/* Form styles */
+form {
+    margin-bottom: 20px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input,
+form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+}
+
+form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+/* ... (previous CSS content) ... */
+
+/* Like button styles */
+button.like-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}
+
+button.like-btn:hover {
+    background-color: #45a049;
+}
+/* ... (previous CSS content) ... */
+
+/* Header and Navigation styles */
+header {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+/* Main content styles */
+main {
+    margin-top: 20px;
+}
+
+/* Post card styles */
+
+
+.post-details {
+    display: flex;
+    justify-content: right;
+    padding:5px
+}
+
+.button2{
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    border-radius: 50%;
+    background-color: whitesmoke;
+     transition: transform .7s ease-in-out;
+    margin-left:10px;
+
+  }
+  .button2:hover{
+    transform: rotate(360deg);
+
+  }
+  img{
+    width: 40px;
+    height: 40px;
+  }
+  .post-title{
+    padding-left: 5px;
+    font-family: "Fira Sans";
+    font-stretch: ultra-condensed;
+    font-size: xx-large;
+  }
+  .post-content{
+    padding-left: 5px;
+  }
+  .delete-button{
+    float: left;
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    border-radius: 50%;
+    background-color: red;
+     transition: transform .7s ease-in-out;
+    margin-left:10px;
+  }
+.likes-value{
+    font-size: larger;
+    color: #7ED7C1;
+}

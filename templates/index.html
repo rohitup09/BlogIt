@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlogIt</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <script>
+        function incrementLikes(postId) {
+    // Disable the like button to prevent multiple clicks
+    const likeButton = document.getElementById(`likeButton_${postId}`);
+    likeButton.disabled = true;
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/increment_likes/${postId}`, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    const likesSpan = document.getElementById(`likes_${postId}`);
+                    likesSpan.innerText = response.likes;
+                } else {
+                    console.error('Failed to increment likes.');
+                    // If there's an error, enable the like button again
+                    likeButton.disabled = false;
+                }
+            } else {
+                console.error(`Failed to make the request. Status: ${xhr.status}`);
+                // If there's an error, enable the like button again
+                likeButton.disabled = false;
+            }
+        }
+    };
+
+    xhr.send();
+}
+
+        function deletePost(postId) {
+        if (confirm('Are you sure you want to delete this post?')) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `/delete_post/${postId}`, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            // Optionally, you can add code here to remove the deleted post from the UI
+                            alert(response.message);
+                            location.reload(); // Refresh the page for simplicity (you may want to update the UI dynamically)
+                        } else {
+                            console.error(response.message);
+                        }
+                    } else {
+                        console.error(`Failed to make the request. Status: ${xhr.status}`);
+                    }
+                }
+            };
+
+            xhr.send();
+        }
+    }
+    </script>
+</head>
+<body style="background-image: url('static/bacc.jpg'); background-repeat: no-repeat; background-size: cover">
+    <header class="text-white py-3" style="background-color:whitesmoke;">
+        <div class="container text-center">
+            <h1 style="color:#7ED7C1; font-style: bold; font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; font-size:50px;">BlogIt</h1>
+        </div>
+    </header>
+
+    <nav class="navbar navbar-light navbar-expand-lg" style="background-color: #7ED7C1;">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                    {% if 'email' in session %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('create') }}">Create Post</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('signup') }}">Signup</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        <section id="post-section" >
+           <!-- <h2 style="background-color:whitesmoke; color: #7ED7C1;" align= 'center' >Recent Posts</h2>-->
+            <!-- Add the following code inside the <header> tag or wherever you want the search bar -->
+                
+                <div class="row mb-3">
+                    <div class="col-md-8" style="padding-top: 10px;">
+                        <form class="form-inline my-2 my-lg-0" method="GET" action="{{ url_for('search') }}">
+                            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="query">
+                            <button class="btn btn-outline-success my-2 my-sm-0" style="color: whitesmoke;" type="submit">Search</button>
+                        </form>
+                    </div>
+                    <div class="col-md-4" style="padding-top: 10px;">
+                        <form action="{{ url_for('index',orderBy='Time') }}" method="GET">
+                            <div class="form-row justify-content-end">
+                                <div class="col-md-6 mb-2">
+                                    <label for="orderBy" class="sr-only">Order By</label>
+                                    <select id="orderBy" name="orderBy" class="form-control">
+                                        <option value="Time">Latest</option>
+                                        <option value="Likes">Likes</option>
+                                        <option value="category">Category</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <button type="submit" class="btn btn-primary">Apply Filter</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            <div class="row">
+                {% for post in posts %}
+                <div class="col-12 mb-4">
+                    <div class="card rounded-md" style="background-color:whitesmoke;">
+                        <div class="card-body">
+                            <h3 class="card-title post-title">{{ post['Title'] }}</h3>
+                            <p style="color:#7ED7C1; padding:5px;" >by: {{ post['Account'] }}</p>
+                            <p class="card-text post-content">{{ post['Content'] }}</p>
+                            <div class="post-details">
+                                <p class="likes-value" style="padding-top: 10px;"><span id="likes_{{ post['PostID'] }}">{{ post['Likes'] }}</span></p>
+                                <button id="likeButton_{{ post['PostID'] }}" class="button2" onclick="incrementLikes('{{ post['PostID'] }}')">
+                                    <img src="{{url_for('static', filename='lik.png')}}" />
+                                </button>
+                                                    
+                                {% if 'email' in session and session['email'] == post['Account'] %}
+                                    <button class="btn btn-danger delete-button" onclick="deletePost('{{ post['PostID'] }}')">
+                                        <img src="{{url_for('static', filename='delete.png')}}" alt="Delete Icon" />
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <!-- Bootstrap JS and Popper.js CDN -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
