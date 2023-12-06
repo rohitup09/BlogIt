@@ -16,8 +16,7 @@ dynamodb = boto3.resource('dynamodb',
                     aws_access_key_id=keys.ACCESS_KEY_ID,
                     aws_secret_access_key=keys.ACCESS_SECRET_KEY,
                     aws_session_token=keys.AWS_SESSION_TOKEN,
-                    region_name='us-east-1'
-                    )
+                    region_name='us-east-1')
 table_name = 'BlogPosts'
 table = dynamodb.Table(table_name)
 
@@ -100,7 +99,7 @@ def index(orderBy='Time',methods=['POST','GET']):
     else:
         return render_template('index.html', posts=posts)
 
-    
+
     return render_template('index.html', posts=send)
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -117,6 +116,14 @@ def create():
         return redirect(url_for('index'))
 
     return render_template('create.html')
+
+def email_exists(mail):
+    table1=dynamodb.Table('userdata')
+    response = table1.query(
+        KeyConditionExpression=Key('email').eq(mail)
+    )
+    items = response['Items']
+    return len(items) > 0
 
 @app.route('/increment_likes/<post_id>', methods=['POST'])
 def increment_likes(post_id):
@@ -153,8 +160,13 @@ def signup():
         email = request.form['email']
         password = request.form['password']
         password=encrypt(password,7)
+        # Check if an account with the same email already exists
+        if email_exists(email):
+            # Redirect to an appropriate page (e.g., a page indicating the email is already registered)
+            return render_template('login.html')
+
         table = dynamodb.Table('userdata')
-        
+
         table.put_item(
                 Item={
         'name': name,
@@ -163,19 +175,19 @@ def signup():
             }
         )
         msg = "Registration Complete. Please Login to your account !"
-    
+
         return render_template('login.html')
     return render_template('signup.html')
 
 @app.route('/login')
-def login():    
+def login():
     return render_template('login.html')
 
 
 @app.route('/check',methods = ['post'])
 def check():
     if request.method=='POST':
-        
+
         email = request.form['email']
         password1 = request.form['password']
         table = dynamodb.Table('userdata')
@@ -183,11 +195,11 @@ def check():
                 KeyConditionExpression=Key('email').eq(email)
         )
         items = response['Items']
-        name = items[0]['name']
-        print(items[0]['password'])
-        if password1 == decrypt(items[0]['password'],7):
-            session['email'] = email
-            return redirect(url_for('index'))
+        if items:
+            if password1 == decrypt(items[0]['password'],7):
+                session['email'] = email
+                return redirect(url_for('index'))
+        return render_template("login.html")
     return render_template("login.html")
 
 
@@ -200,7 +212,7 @@ def logout():
 def profile():
     if 'email' not in session:
         return redirect(url_for('login'))
-    
+
     user_email = session['email']
     response = table.scan()
     posts = response.get('Items', [])
@@ -222,9 +234,9 @@ def edit_post(post_id):
                 post['Content']=new_content
                 table.put_item(Item=post)
 
-                
+
         return redirect(url_for('profile'))
-    
+
     # Render edit post form
     post = get_post_by_id(post_id)
     return render_template('edit_post.html', post=post)
